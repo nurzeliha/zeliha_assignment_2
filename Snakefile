@@ -15,7 +15,8 @@ rule all:
         f"{SNAKEMAKE_DIR}/.dirs_created",
         f"{RAW_DIR}/reference.fasta",
         f"{RAW_DIR}/{SRA}/{SRA}.sra",
-        f"{RAW_DIR}/{SRA}.fastq"
+        f"{RAW_DIR}/{SRA}.fastq",
+        f"{RESULTS_FOLDER}/.checked_files"
         
 rule create_dirs:
     output:
@@ -62,3 +63,25 @@ rule extract_sequence:
         fastq-dump -X 10000 {RAW_DIR}/{SRA}/{SRA}.sra -O {RAW_DIR}
         echo Extracted sequencing data!
         """
+
+
+rule check_files:
+	input:
+	    fasta = f"{RAW_DIR}/reference.fasta",
+	    fastq = f"{RAW_DIR}/{SRA}.fastq"
+	output:
+	    touch(f"{RESULTS_FOLDER}/.checked_files")
+	shell:
+	    """
+	    if [ ! -s {input.fasta} ]; then
+	        echo "Error: Reference genome file is missing or empty." >&2
+	        exit 1
+	    fi
+	
+	    if [ ! -s {input.fastq} ]; then
+            echo "Error: FASTQ file is missing or empty." >&2
+	        exit 1
+	    fi
+	
+	    touch {output}
+	    """
