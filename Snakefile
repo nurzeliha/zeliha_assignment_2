@@ -13,7 +13,8 @@ SNAKEMAKE_DIR=f"{RESULTS_FOLDER}/snakemake"
 rule all:
     input: 
         f"{SNAKEMAKE_DIR}/.dirs_created",
-        f"{RAW_DIR}/reference.fasta"
+        f"{RAW_DIR}/reference.fasta",
+        f"{RAW_DIR}/{SRA}/{SRA}.sra"
         
 rule create_dirs:
     output:
@@ -34,4 +35,16 @@ rule download_reference:
         echo Downloading reference genome...
         efetch -db nucleotide -id {REF_ID} -format fasta > {RAW_DIR}/reference.fasta
         echo Downloaded reference genome!
+        """
+
+rule download_sra:
+    input:
+        marker = rules.create_dirs.output.marker
+    output:
+        sequence_sra = f"{RAW_DIR}/{SRA}/{SRA}.sra"
+    shell:
+        """
+        echo Downloading sequencing data...
+        prefetch {SRA} -O {RAW_DIR}
+        echo Downloaded sequencing data!
         """
