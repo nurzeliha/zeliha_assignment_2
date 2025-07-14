@@ -16,7 +16,9 @@ rule all:
         f"{RAW_DIR}/reference.fasta",
         f"{RAW_DIR}/{SRA}/{SRA}.sra",
         f"{RAW_DIR}/{SRA}.fastq",
-        f"{RESULTS_FOLDER}/.checked_files"
+        f"{RESULTS_FOLDER}/.checked_files",
+        f"{QC_DIR}/{SRA}_fastqc.html",
+        f"{QC_DIR}/{SRA}_fastqc.zip"
         
 rule create_dirs:
     output:
@@ -85,3 +87,17 @@ rule check_files:
 	
 	    touch {output}
 	    """
+
+rule fastqc_raw:
+    input:
+        marker = rules.create_dirs.output.marker,
+        sequence_fastq = rules.extract_sequence.output.sequence_fastq
+    output:
+        html = f"{QC_DIR}/{SRA}_fastqc.html",
+        zip = f"{QC_DIR}/{SRA}_fastqc.zip"
+    shell:
+        """
+        echo Running FastQC on raw reads...
+        fastqc -o {QC_DIR} {input.sequence_fastq}
+        echo FastQC complete!
+        """
