@@ -18,7 +18,8 @@ rule all:
         f"{RAW_DIR}/{SRA}.fastq",
         f"{RESULTS_FOLDER}/.checked_files",
         f"{QC_DIR}/{SRA}_fastqc.html",
-        f"{QC_DIR}/{SRA}_fastqc.zip"
+        f"{QC_DIR}/{SRA}_fastqc.zip",
+        f"{RAW_DIR}/reference.fasta.fai"
         
 rule create_dirs:
     output:
@@ -100,4 +101,17 @@ rule fastqc_raw:
         echo Running FastQC on raw reads...
         fastqc -o {QC_DIR} {input.sequence_fastq}
         echo FastQC complete!
+        """
+
+rule samtools_faidx:
+    input:
+        marker = rules.create_dirs.output.marker,
+        reference_fasta = rules.download_reference.output.reference_fasta
+    output:
+        fai = f"{RAW_DIR}/reference.fasta.fai"
+    shell:
+        """
+        echo Indexing reference genome with samtools...
+        samtools faidx {input.reference_fasta}
+        echo Reference genome indexed!
         """
