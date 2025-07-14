@@ -10,6 +10,11 @@ SNPEFF_DIR=f"{RESULTS_FOLDER}/snpEff"
 SNPEFF_DATA_DIR=f"{SNPEFF_DIR}/data/reference_db"
 SNAKEMAKE_DIR=f"{RESULTS_FOLDER}/snakemake"
 
+rule all:
+    input: 
+        f"{SNAKEMAKE_DIR}/.dirs_created",
+        f"{RAW_DIR}/reference.fasta"
+        
 rule create_dirs:
     output:
         marker = f"{SNAKEMAKE_DIR}/.dirs_created"
@@ -19,3 +24,14 @@ rule create_dirs:
         touch {output.marker}
         """
 
+rule download_reference:
+    input:
+        marker = rules.create_dirs.output.marker
+    output:
+        reference_fasta = f"{RAW_DIR}/reference.fasta"
+    shell:
+        """
+        echo Downloading reference genome...
+        efetch -db nucleotide -id {REF_ID} -format fasta > {RAW_DIR}/reference.fasta
+        echo Downloaded reference genome!
+        """
