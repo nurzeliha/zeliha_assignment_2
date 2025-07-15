@@ -164,3 +164,17 @@ rule sam_to_sorted_bam:
         samtools view -b {input.sam} | samtools sort -o {output.bam}
         echo Conversion complete!
         """
+
+rule validate_bam:
+    input:
+        marker = rules.create_dirs.output.marker,
+        bam = rules.sam_to_sorted_bam.output.bam
+    output:
+        touch(f"{ALIGNED_DIR}/validated_bam.txt")
+    shell:
+        """
+        echo Validating BAM file...
+        gatk ValidateSamFile -I {input.bam} -MODE SUMMARY
+        echo Validation complete!
+        touch {output}
+        """
