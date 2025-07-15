@@ -265,3 +265,17 @@ reference_db.genbank : $(readlink -f {input.genbank})
 EOF
         echo snpEff config created!
         """
+
+rule snpeff_build:
+    input:
+        marker = rules.create_dirs.output.marker,
+        config = rules.snpeff_config.output.config
+    output:
+        touch(f"{SNPEFF_DIR}/.db_built")
+    shell:
+        """
+        echo Building snpEff database...
+        snpEff build -c {input.config} -genbank -v -noCheckProtein reference_db
+        echo Built snpEff database!
+        touch {output}
+        """
