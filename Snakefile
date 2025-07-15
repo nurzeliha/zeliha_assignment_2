@@ -205,3 +205,17 @@ rule index_dedup_bam:
         samtools index {input.dedup_bam}
         echo BAM indexing complete!
         """
+
+rule haplotype_caller:
+    input:
+        marker = rules.create_dirs.output.marker,
+        reference_fasta = rules.download_reference.output.reference_fasta,
+        dedup_bam = rules.mark_duplicates.output.dedup_bam
+    output:
+        vcf = f"{VARIANT_DIR}/raw_variants.vcf"
+    shell:
+        """
+        echo Calling variants...
+        gatk HaplotypeCaller -R {input.reference_fasta} -I {input.dedup_bam} -O {output.vcf}
+        echo Called variants!
+        """
