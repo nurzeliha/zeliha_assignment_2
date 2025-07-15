@@ -219,3 +219,17 @@ rule haplotype_caller:
         gatk HaplotypeCaller -R {input.reference_fasta} -I {input.dedup_bam} -O {output.vcf}
         echo Called variants!
         """
+
+rule variant_filtration:
+    input:
+        marker = rules.create_dirs.output.marker,
+        reference_fasta = rules.download_reference.output.reference_fasta,
+        raw_vcf = rules.haplotype_caller.output.vcf
+    output:
+        filtered_vcf = f"{VARIANT_DIR}/filtered_variants.vcf"
+    shell:
+        """
+        echo Filtering variants...
+        gatk VariantFiltration -R {input.reference_fasta} -V {input.raw_vcf} -O {output.filtered_vcf} --filter-expression "QD < 2.0 || FS > 60.0" --filter-name FILTER
+        echo Variant filtration complete!
+        """
