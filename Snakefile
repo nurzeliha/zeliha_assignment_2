@@ -292,3 +292,18 @@ rule snpeff_export:
         snpEff dump -c {input.config} reference_db > {output.db_txt}
         echo Exported snpEff database!
         """
+
+rule snpeff_annotate:
+    input:
+        marker = rules.create_dirs.output.marker,
+        config = rules.snpeff_config.output.config,
+        filtered_vcf = rules.variant_filtration.output.filtered_vcf
+    output:
+        annotated_vcf = f"{ANNOTATED_DIR}/annotated_variants.vcf",
+        stats_html = f"{SNPEFF_DIR}/snpEff.html"
+    shell:
+        """
+        echo Annotating variants with snpEff...
+        snpEff -c {input.config} -stats {output.stats_html} reference_db {input.filtered_vcf} > {output.annotated_vcf}
+        echo Annotated variants with snpEff!
+        """
