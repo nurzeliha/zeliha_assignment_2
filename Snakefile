@@ -124,3 +124,16 @@ rule bwa_index:
         bwa index {input.reference_fasta}
         echo BWA index built!
         """
+
+rule gatk_dict:
+    input:
+        marker = rules.create_dirs.output.marker,
+        reference_fasta = rules.download_reference.output.reference_fasta
+    output:
+        dict = f"{RAW_DIR}/reference.dict"
+    shell:
+        """
+        echo Creating FASTA dictionary using GATK...
+        gatk CreateSequenceDictionary -R {input.reference_fasta} -O {output.dict}
+        echo FASTA dictionary created!
+        """
