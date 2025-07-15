@@ -307,3 +307,15 @@ rule snpeff_annotate:
         snpEff -c {input.config} -stats {output.stats_html} reference_db {input.filtered_vcf} > {output.annotated_vcf}
         echo Annotated variants with snpEff!
         """
+
+rule pipeline_complete:
+    input:
+        annotated_vcf = rules.snpeff_annotate.output.annotated_vcf
+    output:
+        touch(f"{RESULTS_FOLDER}/.pipeline_complete")
+    shell:
+        """
+        echo Pipeline completed successfully! Check the folders in {RESULTS_FOLDER} for output files.
+        tree {RESULTS_FOLDER}
+        touch {output}
+        """
