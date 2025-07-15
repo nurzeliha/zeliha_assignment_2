@@ -151,3 +151,16 @@ rule bwa_mem:
         bwa mem -R '@RG\\tID:1\\tLB:lib1\\tPL:illumina\\tPU:unit1\\tSM:sample1' {input.reference_fasta} {input.fastq} > {output.sam}
         echo Aligned reads!
         """
+
+rule sam_to_sorted_bam:
+    input:
+        marker = rules.create_dirs.output.marker,
+        sam = rules.bwa_mem.output.sam
+    output:
+        bam = f"{ALIGNED_DIR}/aligned.sorted.bam"
+    shell:
+        """
+        echo Converting SAM to sorted BAM...
+        samtools view -b {input.sam} | samtools sort -o {output.bam}
+        echo Conversion complete!
+        """
