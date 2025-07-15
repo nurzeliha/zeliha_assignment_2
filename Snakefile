@@ -137,3 +137,17 @@ rule gatk_dict:
         gatk CreateSequenceDictionary -R {input.reference_fasta} -O {output.dict}
         echo FASTA dictionary created!
         """
+
+rule bwa_mem:
+    input:
+        marker = rules.create_dirs.output.marker,
+        reference_fasta = rules.download_reference.output.reference_fasta,
+        fastq = rules.extract_sequence.output.sequence_fastq
+    output:
+        sam = f"{ALIGNED_DIR}/aligned.sam"
+    shell:
+        """
+        echo Aligning reads with read groups...
+        bwa mem -R '@RG\\tID:1\\tLB:lib1\\tPL:illumina\\tPU:unit1\\tSM:sample1' {input.reference_fasta} {input.fastq} > {output.sam}
+        echo Aligned reads!
+        """
