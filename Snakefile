@@ -10,16 +10,6 @@ SNPEFF_DIR=f"{RESULTS_FOLDER}/snpEff"
 SNPEFF_DATA_DIR=f"{SNPEFF_DIR}/data/reference_db"
 SNAKEMAKE_DIR=f"{RESULTS_FOLDER}/snakemake"
 
-rule all:
-    input: 
-        f"{SNAKEMAKE_DIR}/.dirs_created",
-        f"{RAW_DIR}/reference.fasta",
-        f"{RAW_DIR}/{SRA}/{SRA}.sra",
-        f"{RAW_DIR}/{SRA}.fastq",
-        f"{RESULTS_FOLDER}/.checked_files",
-        f"{QC_DIR}/{SRA}_fastqc.html",
-        f"{QC_DIR}/{SRA}_fastqc.zip",
-        f"{RAW_DIR}/reference.fasta.fai"
         
 rule create_dirs:
     output:
@@ -114,4 +104,23 @@ rule samtools_faidx:
         echo Indexing reference genome with samtools...
         samtools faidx {input.reference_fasta}
         echo Reference genome indexed!
+        """
+
+rule bwa_index:
+    input:
+        marker = rules.create_dirs.output.marker,
+        reference_fasta = rules.download_reference.output.reference_fasta
+    output:
+        [
+            f"{RAW_DIR}/reference.fasta.amb",
+            f"{RAW_DIR}/reference.fasta.ann",
+            f"{RAW_DIR}/reference.fasta.bwt",
+            f"{RAW_DIR}/reference.fasta.pac",
+            f"{RAW_DIR}/reference.fasta.sa"
+        ]
+    shell:
+        """
+        echo Building BWA index...
+        bwa index {input.reference_fasta}
+        echo BWA index built!
         """
