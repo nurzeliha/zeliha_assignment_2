@@ -233,3 +233,17 @@ rule variant_filtration:
         gatk VariantFiltration -R {input.reference_fasta} -V {input.raw_vcf} -O {output.filtered_vcf} --filter-expression "QD < 2.0 || FS > 60.0" --filter-name FILTER
         echo Variant filtration complete!
         """
+
+
+rule download_genbank:
+    input:
+        marker = rules.create_dirs.output.marker
+    output:
+        genbank = f"{SNPEFF_DATA_DIR}/genes.gbk"
+    shell:
+        """
+        echo Downloading reference GenBank file for snpEff...
+        efetch -db nucleotide -id {REF_ID} -format genbank > {output.genbank}
+        echo Downloaded GenBank file for snpEff!
+        """
+        
