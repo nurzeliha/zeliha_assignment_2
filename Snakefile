@@ -246,4 +246,22 @@ rule download_genbank:
         efetch -db nucleotide -id {REF_ID} -format genbank > {output.genbank}
         echo Downloaded GenBank file for snpEff!
         """
-        
+
+rule snpeff_config:
+    input:
+        marker = rules.create_dirs.output.marker,
+        reference_fasta = rules.download_reference.output.reference_fasta,
+        genbank = rules.download_genbank.output.genbank
+    output:
+        config = f"{SNPEFF_DIR}/snpEff.config"
+    shell:
+        """
+        echo Creating custom snpEff configuration file...
+        cat <<EOF > {output.config}
+# Custom snpEff config for reference_db
+reference_db.genome : reference_db
+reference_db.fa : $(readlink -f {input.reference_fasta})
+reference_db.genbank : $(readlink -f {input.genbank})
+EOF
+        echo snpEff config created!
+        """
