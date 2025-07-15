@@ -178,3 +178,17 @@ rule validate_bam:
         echo Validation complete!
         touch {output}
         """
+
+rule mark_duplicates:
+    input:
+        marker = rules.create_dirs.output.marker,
+        bam = rules.sam_to_sorted_bam.output.bam
+    output:
+        dedup_bam = f"{ALIGNED_DIR}/dedup.bam",
+        metrics = f"{ALIGNED_DIR}/dup_metrics.txt"
+    shell:
+        """
+        echo Marking duplicates...
+        gatk MarkDuplicates -I {input.bam} -O {output.dedup_bam} -M {output.metrics}
+        echo Duplicates marked!
+        """
