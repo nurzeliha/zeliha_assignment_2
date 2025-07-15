@@ -279,3 +279,16 @@ rule snpeff_build:
         echo Built snpEff database!
         touch {output}
         """
+
+rule snpeff_export:
+    input:
+        marker = rules.create_dirs.output.marker,
+        config = rules.snpeff_config.output.config
+    output:
+        db_txt = f"{SNPEFF_DIR}/snpEff_reference_db.txt"
+    shell:
+        """
+        echo Exporting snpEff database...
+        snpEff dump -c {input.config} reference_db > {output.db_txt}
+        echo Exported snpEff database!
+        """
